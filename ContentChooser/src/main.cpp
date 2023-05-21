@@ -23,6 +23,8 @@ int main()
 	std::getline(fin, username);
 	std::getline(fin, password);
 
+	fin.close();
+
 	sql::Driver* driver; // sql drivers for further connection
 	sql::Connection* con; // connection statement itself
 	sql::Statement* stmt; // instance statement of db (execute management of databases or table configurations)
@@ -74,19 +76,21 @@ int main()
 	std::cout << "Deleted unnecessary db\n";
 	
 	// go to world db for testing
-	con->setSchema("world");
-	std::cout << "Select db \"world\"\n";
+	con->setSchema("sakila");
+	std::cout << "Select db \"sakila\"\n";
 
 	// get cities
 	stmt = con->createStatement();
-	res = stmt->executeQuery("SELECT * FROM city WHERE CountryCode LIKE \"UKR\" AND Population > 100000");
+	res = stmt->executeQuery("SELECT first_name, last_name FROM actor ORDER BY last_name ASC");
+	//res = stmt->executeQuery("SELECT * FROM city WHERE CountryCode LIKE \"UKR\" AND Population > 500000 ORDER BY Population DESC");
 	std::cout << "Got data\n";
 	
 	//get result set metadata
 	sql::ResultSetMetaData* res_meta = res->getMetaData();
 	int columns = res_meta->getColumnCount();
 	std::cout << "Got metadata\n";
-	
+	std::cout << "Output\n";
+
 	std::cout << '\n';
 
 	//Loop for each row
@@ -96,7 +100,10 @@ int main()
 		//	std::cout << res->getString(i) << "\t|";
 		//}
 		//std::cout << '\n';
-		std::cout << res->getString(2) << '\n';
+
+		std::cout << res->getString(2) << " ";
+		std::cout << res->getString(1) << "\n";
+		//std::cout << res->getString(5) << '\n';
 	}
 
 	std::cout << '\n';
@@ -106,6 +113,7 @@ int main()
 	delete pstmt;
 	delete con;
 	delete stmt;
+	delete res;
 	system("pause");
 	return 0;
 }
