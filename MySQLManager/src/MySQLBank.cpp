@@ -1,7 +1,7 @@
 #include "../include/MySQLBank.h"
 #include <fstream>
 
-bool MySQLBank::connect(const std::string& path_to_ticket)
+uint8_t MySQLBank::connect(const std::string& path_to_ticket)
 {
 	std::string server;
 	std::string username;
@@ -10,9 +10,8 @@ bool MySQLBank::connect(const std::string& path_to_ticket)
 	std::ifstream fin(path_to_ticket);
 	if (!fin.is_open())
 	{
-		std::cout << "\"dbticket.txt\" isn't exist\n";
-		system("pause");
-		exit(1);
+		printf("\"%s\" isn't exist\n", path_to_ticket.c_str());
+		return ERR_NO_KEY;
 	}
 
 	std::getline(fin, server);
@@ -23,14 +22,14 @@ bool MySQLBank::connect(const std::string& path_to_ticket)
 
 	try
 	{
-		mDriver.reset(get_driver_instance());
-		mConnection.reset(mDriver->connect(server, username, password));
-		return true;
+		mDriver = get_driver_instance();
+		mConnection = mDriver->connect(server, username, password);
+		return 0;
 	}
 	catch (const sql::SQLException e)
 	{
 		printf("Server Error: %s\n", e.what());
-		return false;
+		return ERR_CONNECTION;
 	}
 }
 
@@ -41,25 +40,25 @@ void MySQLBank::selectDataBase(const std::string& name_db)
 
 bool MySQLBank::immediatelyExecute(const std::string& query)
 {
-	mStatement.reset(mConnection->createStatement());
+	mStatement = mConnection->createStatement();
 	return mStatement->execute(query);
 }
 
 void MySQLBank::prepareExecution(const std::string& query)
 {
-	mPreparedStatement.reset(mConnection->prepareStatement(query));
+	mPreparedStatement = mConnection->prepareStatement(query);
 }
 
 bool MySQLBank::executeQuery(const std::string& query)
 {
-	mStatement.reset(mConnection->createStatement());
-	mResult.reset(mStatement->executeQuery(query));
-	return mResult.get();
+	mStatement = mConnection->createStatement();
+	mResult = mStatement->executeQuery(query);
+	return mResult;
 }
 
 void MySQLBank::executeUpdate(const std::string query)
 {
-	mStatement.reset(mConnection->createStatement());
+	mStatement = mConnection->createStatement();
 	mStatement->executeUpdate(query);
 }
 
@@ -73,4 +72,14 @@ size_t MySQLBank::getResultColomns()
 	sql::ResultSetMetaData* res_meta = mResult->getMetaData();
 	size_t columns = res_meta->getColumnCount();
 	return columns;
+}
+
+MySQLBank::~MySQLBank()
+{
+	mConnection->close();
+	delete mConnection;
+	delete mStatement;
+	delete mPreparedStatement;
+	delete mResult;
+
 }

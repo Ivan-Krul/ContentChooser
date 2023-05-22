@@ -5,9 +5,12 @@
 #include <memory>
 #include <mysql/jdbc.h>
 
+#define ERR_CONNECTION 1
+#define ERR_NO_KEY 2
+
 struct IMySQLBank
 {
-	virtual bool connect(const std::string& path_to_ticket) = 0;
+	virtual uint8_t connect(const std::string& path_to_ticket) = 0;
 
 	virtual void selectDataBase(const std::string& name_db) = 0;
 
@@ -19,17 +22,17 @@ struct IMySQLBank
 
 	virtual size_t getResultColomns() = 0;
 
-	virtual std::auto_ptr<sql::Driver>& getDriverInstance() = 0;
-	virtual std::auto_ptr<sql::Connection>& getConnectionInstance() = 0;
-	virtual std::auto_ptr<sql::Statement>& getStatementInstance() = 0;
-	virtual std::auto_ptr<sql::PreparedStatement>& getPreparedStatementInstance() = 0;
-	virtual std::auto_ptr<sql::ResultSet>& getResultInstance() = 0;
+	virtual sql::Driver* getDriverInstance() = 0;
+	virtual sql::Connection* getConnectionInstance() = 0;
+	virtual sql::Statement*	getStatementInstance() = 0;
+	virtual sql::PreparedStatement* getPreparedStatementInstance() = 0;
+	virtual sql::ResultSet* getResultInstance() = 0;
 };
 
 class MySQLBank : public IMySQLBank
 {
 public:
-	bool connect(const std::string& path_to_ticket) override;
+	uint8_t connect(const std::string& path_to_ticket) override;
 
 	void selectDataBase(const std::string& name_db) override;
 
@@ -41,16 +44,18 @@ public:
 
 	size_t getResultColomns() override;
 
-	inline std::auto_ptr<sql::Driver>& getDriverInstance() override { return mDriver; };
-	inline std::auto_ptr<sql::Connection>& getConnectionInstance() override { return mConnection; };
-	inline std::auto_ptr<sql::Statement>& getStatementInstance() override { return mStatement; };
-	inline std::auto_ptr<sql::PreparedStatement>& getPreparedStatementInstance() override { return mPreparedStatement; };
-	inline std::auto_ptr<sql::ResultSet>& getResultInstance() override { return mResult; };
+	inline sql::Driver* getDriverInstance() override { return mDriver; };
+	inline sql::Connection* getConnectionInstance() override { return mConnection; };
+	inline sql::Statement* getStatementInstance() override { return mStatement; };
+	inline sql::PreparedStatement* getPreparedStatementInstance() override { return mPreparedStatement; };
+	inline sql::ResultSet* getResultInstance() override { return mResult; };
+
+	virtual ~MySQLBank();
 private:
-	std::auto_ptr<sql::Driver> mDriver; // sql drivers for further connection
-	std::auto_ptr<sql::Connection> mConnection; // connection statement itself
-	std::auto_ptr<sql::Statement> mStatement; // instance statement of db (execute management of databases or table configurations)
-	std::auto_ptr<sql::PreparedStatement> mPreparedStatement; // prepared statement of db (execute queries)
-	std::auto_ptr<sql::ResultSet> mResult; // result of query
+	sql::Driver*			mDriver; // sql drivers for further connection
+	sql::Connection*		mConnection; // connection statement itself
+	sql::Statement*			mStatement; // instance statement of db (execute management of databases or table configurations)
+	sql::PreparedStatement*	mPreparedStatement; // prepared statement of db (execute queries)
+	sql::ResultSet*			mResult; // result of query
 };
 

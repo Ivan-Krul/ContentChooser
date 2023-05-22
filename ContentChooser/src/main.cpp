@@ -4,6 +4,8 @@
 
 #include <mysql/jdbc.h>
 
+#include "MySQLBank.h"
+/*
 int main()
 {
 	//for demonstration only. never save your password in the code!
@@ -95,11 +97,11 @@ int main()
 
 	//Loop for each row
 	while (res->next()) {
-		/* Access column data by index, 1-indexed*/
-		//for (int i = 1; i <= columns; i++) {
-		//	std::cout << res->getString(i) << "\t|";
-		//}
-		//std::cout << '\n';
+		/* Access column data by index, 1-indexed
+		for (int i = 1; i <= columns; i++) {
+			std::cout << res->getString(i) << "\t|";
+		}
+		std::cout << '\n';
 
 		std::cout << res->getString(2) << " ";
 		std::cout << res->getString(1) << "\n";
@@ -115,5 +117,32 @@ int main()
 	delete stmt;
 	delete res;
 	system("pause");
+	return 0;
+}
+*/
+int main()
+{
+	MySQLBank bank;
+	if (bank.connect("../resource/dbticket.txt") != 0)
+	{
+		printf("No connection or no key");
+		exit(1);
+	}
+	bank.selectDataBase("world");
+	if (!bank.executeQuery("SELECT * FROM city WHERE CountryCode LIKE \"UKR\" AND Population > 500000 ORDER BY Population DESC"))
+	{
+		printf("Bad query");
+		exit(1);
+	}
+	size_t colomns = bank.getResultColomns();
+
+	while (bank.getResultInstance()->next())
+	{
+		for (size_t i = 1; i <= colomns; i++)
+			std::cout << bank.getResultInstance()->getString(i) << " |\t";
+
+		std::cout << '\n';
+	}
+
 	return 0;
 }
