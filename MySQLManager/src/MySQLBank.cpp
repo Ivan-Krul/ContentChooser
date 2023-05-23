@@ -33,7 +33,7 @@ uint8_t MySQLBank::connect(const std::string& path_to_ticket)
 	}
 }
 
-void MySQLBank::selectDataBase(const std::string& name_db)
+void MySQLBank::selectScheme(const std::string& name_db)
 {
 	mConnection->setSchema(name_db);
 }
@@ -52,19 +52,42 @@ void MySQLBank::prepareExecution(const std::string& query)
 bool MySQLBank::executeQuery(const std::string& query)
 {
 	mStatement = mConnection->createStatement();
-	mResult = mStatement->executeQuery(query);
-	return mResult;
+	try
+	{
+		mResult = mStatement->executeQuery(query);
+		return mResult;
+	}
+	catch (sql::SQLException& e)
+	{
+		printf("Query Error: %s\n", e.what());
+		return false;
+	}
 }
 
 void MySQLBank::executeUpdate(const std::string query)
 {
 	mStatement = mConnection->createStatement();
-	mStatement->executeUpdate(query);
+	try
+	{
+		mStatement->executeUpdate(query);
+	}
+	catch (sql::SQLException& e)
+	{
+		printf("Update Error: %s\n", e.what());
+	}
 }
 
 bool MySQLBank::executePrepared()
 {
-	return mPreparedStatement->execute();
+	try
+	{
+		return mPreparedStatement->execute();
+	}
+	catch (sql::SQLException& e)
+	{
+		printf("Update Error: %s\n", e.what());
+		return false;
+	}
 }
 
 size_t MySQLBank::getResultColomns()

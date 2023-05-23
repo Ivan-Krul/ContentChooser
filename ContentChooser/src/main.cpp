@@ -5,6 +5,8 @@
 #include <mysql/jdbc.h>
 
 #include "MySQLBank.h"
+
+#include <vector>
 /*
 int main()
 {
@@ -128,8 +130,8 @@ int main()
 		printf("No connection or no key");
 		exit(1);
 	}
-	bank.selectDataBase("world");
-	if (!bank.executeQuery("SELECT * FROM city WHERE CountryCode LIKE \"UKR\" AND Population > 500000 ORDER BY Population DESC"))
+	bank.selectScheme("sakila");
+	if (!bank.executeQuery("SELECT * FROM film"))
 	{
 		printf("Bad query");
 		exit(1);
@@ -139,7 +141,7 @@ int main()
 	while (bank.getResultInstance()->next())
 	{
 		for (size_t i = 1; i <= colomns; i++)
-			std::cout << bank.getResultInstance()->getString(i) << " |\t";
+			std::cout << bank.getResultInstance()->getString(i) << "\n";
 
 		std::cout << '\n';
 	}

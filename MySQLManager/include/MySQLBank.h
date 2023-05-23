@@ -12,7 +12,7 @@ struct IMySQLBank
 {
 	virtual uint8_t connect(const std::string& path_to_ticket) = 0;
 
-	virtual void selectDataBase(const std::string& name_db) = 0;
+	virtual void selectScheme(const std::string& name_db) = 0;
 
 	virtual bool immediatelyExecute(const std::string& query) = 0;
 	virtual void prepareExecution(const std::string& query) = 0;
@@ -34,7 +34,7 @@ class MySQLBank : public IMySQLBank
 public:
 	uint8_t connect(const std::string& path_to_ticket) override;
 
-	void selectDataBase(const std::string& name_db) override;
+	void selectScheme(const std::string& name_db) override;
 
 	bool immediatelyExecute(const std::string& query) override;
 	void prepareExecution(const std::string& query) override;
