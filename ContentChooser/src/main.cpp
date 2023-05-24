@@ -124,27 +124,24 @@ int main()
 */
 int main()
 {
-	MySQLBank bank;
+	MySQLBank<true> bank;
 	if (bank.connect("../resource/dbticket.txt") != 0)
 	{
 		printf("No connection or no key");
 		exit(1);
 	}
-	bank.selectScheme("sakila");
-	if (!bank.executeQuery("SELECT * FROM film"))
-	{
-		printf("Bad query");
-		exit(1);
-	}
-	size_t colomns = bank.getResultColomns();
+	bank.immediatelyExecute("DROP DATABASE IF EXISTS content_chooser;");
+	bank.immediatelyExecute("CREATE DATABASE content_chooser;");
+	bank.selectScheme("content_chooser");
 
-	while (bank.getResultInstance()->next())
-	{
-		for (size_t i = 1; i <= colomns; i++)
-			std::cout << bank.getResultInstance()->getString(i) << "\n";
+	bank.immediatelyExecute("CREATE TABLE name(id serial PRIMARY KEY, title varchar(128));");
 
-		std::cout << '\n';
-	}
+	bank.prepareExecution("INSERT INTO name(title) VALUES(?)");
+	bank.getPreparedStatementInstance()->setString(1,"Star versus the Forces of Evil");
+	bank.executePrepared();
+
+	bank.getPreparedStatementInstance()->setString(1, "Amphibia");
+	bank.executePrepared();
 
 	return 0;
 }

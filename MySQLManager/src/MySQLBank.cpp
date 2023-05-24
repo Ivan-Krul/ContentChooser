@@ -1,7 +1,12 @@
 #include "../include/MySQLBank.h"
 #include <fstream>
+#include <exception>
 
-uint8_t MySQLBank::connect(const std::string& path_to_ticket)
+template class MySQLBank<false>;
+template class MySQLBank<true>;
+
+template<bool _Exception>
+uint8_t MySQLBank<_Exception>::connect(const std::string& path_to_ticket)
 {
 	std::string server;
 	std::string username;
@@ -10,8 +15,13 @@ uint8_t MySQLBank::connect(const std::string& path_to_ticket)
 	std::ifstream fin(path_to_ticket);
 	if (!fin.is_open())
 	{
-		printf("\"%s\" isn't exist\n", path_to_ticket.c_str());
-		return ERR_NO_KEY;
+		if (_Exception)
+			throw std::domain_error("the file isn't found");
+		else
+		{
+			printf("\"%s\" isn't exist\n", path_to_ticket.c_str());
+			return ERR_NO_KEY;
+		}
 	}
 
 	std::getline(fin, server);
@@ -28,56 +38,98 @@ uint8_t MySQLBank::connect(const std::string& path_to_ticket)
 	}
 	catch (const sql::SQLException e)
 	{
-		printf("Server Error: %s\n", e.what());
-		return ERR_CONNECTION;
+		if (_Exception)
+			throw e;
+		else
+		{
+			printf("Server Error: %s\n", e.what());
+			return ERR_CONNECTION;
+		}
 	}
 }
 
-void MySQLBank::selectScheme(const std::string& name_db)
+template<bool _Exception>
+void MySQLBank<_Exception>::selectScheme(const std::string& name_db)
 {
 	mConnection->setSchema(name_db);
 }
 
-bool MySQLBank::immediatelyExecute(const std::string& query)
+template<bool _Exception>
+bool MySQLBank<_Exception>::immediatelyExecute(const std::string& query)
 {
-	mStatement = mConnection->createStatement();
-	return mStatement->execute(query);
-}
-
-void MySQLBank::prepareExecution(const std::string& query)
-{
-	mPreparedStatement = mConnection->prepareStatement(query);
-}
-
-bool MySQLBank::executeQuery(const std::string& query)
-{
-	mStatement = mConnection->createStatement();
 	try
 	{
+		mStatement = mConnection->createStatement();
+		return mStatement->execute(query);
+	}
+	catch (sql::SQLException& e)
+	{
+		if (_Exception)
+			throw e;
+		else
+		{
+			printf("Query Error: %s\n", e.what());
+			return false;
+		}
+	}
+}
+
+template<bool _Exception>
+void MySQLBank<_Exception>::prepareExecution(const std::string& query)
+{
+	try
+	{
+		mPreparedStatement = mConnection->prepareStatement(query);
+	}
+	catch (sql::SQLException& e)
+	{
+		if (_Exception)
+			throw e;
+		else
+			printf("Query Error: %s\n", e.what());
+	}
+}
+
+template<bool _Exception>
+bool MySQLBank<_Exception>::executeQuery(const std::string& query)
+{
+	try
+	{
+		mStatement = mConnection->createStatement();
 		mResult = mStatement->executeQuery(query);
 		return mResult;
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Query Error: %s\n", e.what());
-		return false;
+		if (_Exception)
+			throw e;
+		else
+		{
+			printf("Query Error: %s\n", e.what());
+			return false;
+		}
 	}
 }
 
-void MySQLBank::executeUpdate(const std::string query)
+template<bool _Exception>
+void MySQLBank<_Exception>::executeUpdate(const std::string query)
 {
-	mStatement = mConnection->createStatement();
 	try
 	{
+		mStatement = mConnection->createStatement();
 		mStatement->executeUpdate(query);
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Update Error: %s\n", e.what());
+		if (_Exception)
+			throw e;
+		else
+			printf("Update Error: %s\n", e.what());
 	}
 }
 
-bool MySQLBank::executePrepared()
+template<bool _Exception>
+bool MySQLBank<_Exception>::executePrepared()
 {
 	try
 	{
@@ -85,19 +137,26 @@ bool MySQLBank::executePrepared()
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Update Error: %s\n", e.what());
-		return false;
+		if (_Exception)
+			throw e;
+		else
+		{
+			printf("Update Error: %s\n", e.what());
+			return false;
+		}
 	}
 }
 
-size_t MySQLBank::getResultColomns()
+template<bool _Exception>
+size_t MySQLBank<_Exception>::getResultColomns()
 {
 	sql::ResultSetMetaData* res_meta = mResult->getMetaData();
 	size_t columns = res_meta->getColumnCount();
 	return columns;
 }
 
-MySQLBank::~MySQLBank()
+template<bool _Exception>
+MySQLBank<_Exception>::~MySQLBank()
 {
 	mConnection->close();
 	delete mConnection;

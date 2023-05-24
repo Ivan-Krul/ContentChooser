@@ -29,6 +29,7 @@ struct IMySQLBank
 	virtual sql::ResultSet* getResultInstance() = 0;
 };
 
+template<bool _Exception>
 class MySQLBank : public IMySQLBank
 {
 public:
@@ -58,4 +59,3 @@ private:
 	sql::PreparedStatement*	mPreparedStatement; // prepared statement of db (execute queries)
 	sql::ResultSet*			mResult; // result of query
 };
-
