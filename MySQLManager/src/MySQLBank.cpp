@@ -2,11 +2,9 @@
 #include <fstream>
 #include <exception>
 
-template class MySQLBank<false>;
-template class MySQLBank<true>;
+#include <stdlib.h>
 
-template<bool _Exception>
-uint8_t MySQLBank<_Exception>::connect(const std::string& path_to_ticket)
+uint8_t MySQLBankUnSafe::connect(const std::string& path_to_ticket)
 {
 	std::string server;
 	std::string username;
@@ -15,7 +13,7 @@ uint8_t MySQLBank<_Exception>::connect(const std::string& path_to_ticket)
 	std::ifstream fin(path_to_ticket);
 	if (!fin.is_open())
 	{
-		if (_Exception)
+		if (except)
 			throw std::domain_error("the file isn't found");
 		else
 		{
@@ -38,7 +36,7 @@ uint8_t MySQLBank<_Exception>::connect(const std::string& path_to_ticket)
 	}
 	catch (const sql::SQLException e)
 	{
-		if (_Exception)
+		if (except)
 			throw e;
 		else
 		{
@@ -48,23 +46,16 @@ uint8_t MySQLBank<_Exception>::connect(const std::string& path_to_ticket)
 	}
 }
 
-template<bool _Exception>
-void MySQLBank<_Exception>::selectScheme(const std::string& name_db)
-{
-	mConnection->setSchema(name_db);
-}
-
-template<bool _Exception>
-bool MySQLBank<_Exception>::immediatelyExecute(const std::string& query)
+bool MySQLBankUnSafe::selectScheme(const std::string& name_db)
 {
 	try
 	{
-		mStatement = mConnection->createStatement();
-		return mStatement->execute(query);
+		mConnection->setSchema(name_db);
+		return true;
 	}
 	catch (sql::SQLException& e)
 	{
-		if (_Exception)
+		if (except)
 			throw e;
 		else
 		{
@@ -74,8 +65,26 @@ bool MySQLBank<_Exception>::immediatelyExecute(const std::string& query)
 	}
 }
 
-template<bool _Exception>
-void MySQLBank<_Exception>::prepareExecution(const std::string& query)
+bool MySQLBankUnSafe::immediatelyExecute(const std::string& query)
+{
+	try
+	{
+		mStatement = mConnection->createStatement();
+		return mStatement->execute(query);
+	}
+	catch (sql::SQLException& e)
+	{
+		if (except)
+			throw e;
+		else
+		{
+			printf("Query Error: %s\n", e.what());
+			return false;
+		}
+	}
+}
+
+void MySQLBankUnSafe::prepareExecution(const std::string& query)
 {
 	try
 	{
@@ -83,15 +92,14 @@ void MySQLBank<_Exception>::prepareExecution(const std::string& query)
 	}
 	catch (sql::SQLException& e)
 	{
-		if (_Exception)
+		if (except)
 			throw e;
 		else
 			printf("Query Error: %s\n", e.what());
 	}
 }
 
-template<bool _Exception>
-bool MySQLBank<_Exception>::executeQuery(const std::string& query)
+bool MySQLBankUnSafe::executeQuery(const std::string& query)
 {
 	try
 	{
@@ -101,7 +109,7 @@ bool MySQLBank<_Exception>::executeQuery(const std::string& query)
 	}
 	catch (sql::SQLException& e)
 	{
-		if (_Exception)
+		if (except)
 			throw e;
 		else
 		{
@@ -111,8 +119,7 @@ bool MySQLBank<_Exception>::executeQuery(const std::string& query)
 	}
 }
 
-template<bool _Exception>
-void MySQLBank<_Exception>::executeUpdate(const std::string query)
+void MySQLBankUnSafe::executeUpdate(const std::string query)
 {
 	try
 	{
@@ -121,15 +128,14 @@ void MySQLBank<_Exception>::executeUpdate(const std::string query)
 	}
 	catch (sql::SQLException& e)
 	{
-		if (_Exception)
+		if (except)
 			throw e;
 		else
 			printf("Update Error: %s\n", e.what());
 	}
 }
 
-template<bool _Exception>
-bool MySQLBank<_Exception>::executePrepared()
+bool MySQLBankUnSafe::executePrepared()
 {
 	try
 	{
@@ -137,7 +143,7 @@ bool MySQLBank<_Exception>::executePrepared()
 	}
 	catch (sql::SQLException& e)
 	{
-		if (_Exception)
+		if (except)
 			throw e;
 		else
 		{
@@ -147,21 +153,56 @@ bool MySQLBank<_Exception>::executePrepared()
 	}
 }
 
-template<bool _Exception>
-size_t MySQLBank<_Exception>::getResultColomns()
+size_t MySQLBankUnSafe::getResultColomns()
 {
 	sql::ResultSetMetaData* res_meta = mResult->getMetaData();
 	size_t columns = res_meta->getColumnCount();
 	return columns;
 }
 
-template<bool _Exception>
-MySQLBank<_Exception>::~MySQLBank()
+MySQLBankBase::~MySQLBankBase()
 {
 	mConnection->close();
 	delete mConnection;
 	delete mStatement;
 	delete mPreparedStatement;
 	delete mResult;
+}
 
+uint8_t MySQLBankSafe::connect(const std::string& path_to_ticket) noexcept
+{
+	return 0;
+}
+
+bool MySQLBankSafe::selectScheme(const std::string& name_db) noexcept
+{
+	return false;
+}
+
+bool MySQLBankSafe::immediatelyExecute(const std::string& query) noexcept
+{
+	return false;
+}
+
+void MySQLBankSafe::prepareExecution(const std::string& query) noexcept
+{
+}
+
+bool MySQLBankSafe::executePrepared()
+{
+	return false;
+}
+
+bool MySQLBankSafe::executeQuery(const std::string& query) noexcept
+{
+	return false;
+}
+
+void MySQLBankSafe::executeUpdate(const std::string query) noexcept
+{
+}
+
+size_t MySQLBankSafe::getResultColomns() noexcept
+{
+	return size_t();
 }

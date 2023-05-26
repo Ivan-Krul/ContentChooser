@@ -19,10 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\QueryGuru.cpp" />
     <ClCompile Include="src\MySQLBank.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\IMySQLBank.h" />
     <ClInclude Include="include\MySQLBank.h" />
+    <ClInclude Include="include\QueryGuru.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -8,7 +8,7 @@
 
 int main()
 {
-	MySQLBank<false> bank;
+	MySQLBank bank;
 	if (bank.connect("../resource/dbticket.txt") != 0)
 	{
 		printf("No connection or no key");
