@@ -1,6 +1,7 @@
 #pragma once
 #include "MySQLBank.h"
 
+/*
 class QueryGuru
 {
 public:
@@ -9,4 +10,4 @@ public:
 private:
 
 };
-
+*/

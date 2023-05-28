@@ -22,7 +22,7 @@ struct IMySQLBankUnSafe
 	virtual void prepareExecution(const std::string& query) = 0;
 	virtual bool executePrepared() = 0;
 	virtual bool executeQuery(const std::string& query) = 0;
-	virtual void executeUpdate(const std::string query) = 0;
+	virtual int executeUpdate(const std::string& query) = 0;
 };
 
 struct IMySQLBankSafe
@@ -33,7 +33,7 @@ struct IMySQLBankSafe
 
 	virtual bool immediatelyExecute(const std::string& query) noexcept = 0;
 	virtual void prepareExecution(const std::string& query) noexcept = 0;
-	virtual bool executePrepared() = 0;
+	virtual bool executePrepared() noexcept = 0;
 	virtual bool executeQuery(const std::string& query) noexcept = 0;
-	virtual void executeUpdate(const std::string query) noexcept = 0;
+	virtual int executeUpdate(const std::string& query) noexcept = 0;
 };

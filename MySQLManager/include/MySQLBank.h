@@ -17,14 +17,26 @@ public:
 };
 
 
-class MySQLBankOperatorafe : public MySQLBankBase, public IMySQLBankSafe
+class MySQLBankOperator : public MySQLBankBase
 {
 public:
+	void readFromTicket(const std::string& path_to_ticket);
+	void connectOper();
 
+	void selectSchemeOper(const std::string& name_db);
+
+	bool immediatelyExecuteOper(const std::string& query);
+	void prepareExecutionOper(const std::string& query);
+	bool executePreparedOper();
+	bool executeQueryOper(const std::string& query);
+	int executeUpdateOper(const std::string& query);
+private:
+	std::string mServerPath;
+	std::string mServerUser;
+	std::string mServerPass;
 };
 
-
-class MySQLBankUnSafe : private MySQLBankBase, public IMySQLBankGet, public IMySQLBankUnSafe
+class MySQLBankUnSafe : private MySQLBankOperator, public IMySQLBankGet, public IMySQLBankUnSafe
 {
 public:
 	uint8_t connect(const std::string& path_to_ticket) override;
@@ -35,7 +47,7 @@ public:
 	void prepareExecution(const std::string& query) override;
 	bool executePrepared() override;
 	bool executeQuery(const std::string& query) override;
-	void executeUpdate(const std::string query) override;
+	int executeUpdate(const std::string& query) override;
 
 	size_t getResultColomns() override;
 
@@ -46,8 +58,7 @@ public:
 	inline sql::ResultSet* getResultInstance() noexcept override { return mResult; };
 };
 
-
-class MySQLBankSafe : private MySQLBankBase, public IMySQLBankGet, public IMySQLBankSafe
+class MySQLBankSafe : private MySQLBankOperator, public IMySQLBankGet, public IMySQLBankSafe
 {
 public:
 	uint8_t connect(const std::string& path_to_ticket) noexcept override;
@@ -56,9 +67,9 @@ public:
 
 	bool immediatelyExecute(const std::string& query) noexcept override;
 	void prepareExecution(const std::string& query) noexcept override;
-	bool executePrepared() override;
+	bool executePrepared() noexcept override;
 	bool executeQuery(const std::string& query) noexcept override;
-	void executeUpdate(const std::string query) noexcept override;
+	int executeUpdate(const std::string& query) noexcept override;
 
 	size_t getResultColomns() noexcept override;
 
@@ -67,6 +78,4 @@ public:
 	inline sql::Statement* getStatementInstance() noexcept override { return mStatement; };
 	inline sql::PreparedStatement* getPreparedStatementInstance() noexcept override { return mPreparedStatement; };
 	inline sql::ResultSet* getResultInstance() noexcept override { return mResult; };
-
-	virtual ~MySQLBankSafe() = default;
 };

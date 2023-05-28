@@ -21,6 +21,9 @@
     <ClCompile Include="src\QueryGuru.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\MySQLBankOperator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MySQLBank.h">
