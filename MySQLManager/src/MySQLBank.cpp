@@ -124,7 +124,7 @@ uint8_t MySQLBankSafe::connect(const std::string& path_to_ticket) noexcept
 	}
 	catch (const std::exception& e)
 	{
-		printf("Error connection: %s", e.what());
+		printf("Error connection: %s\n", e.what());
 		return ERR_NO_KEY;
 	}
 
@@ -134,7 +134,7 @@ uint8_t MySQLBankSafe::connect(const std::string& path_to_ticket) noexcept
 	}
 	catch (const sql::SQLException& e)
 	{
-		printf("Error SQL connection: %s", e.what());
+		printf("Error SQL connection: %s\n", e.what());
 		return ERR_CONNECTION;
 	}
 	return 0;
@@ -148,7 +148,7 @@ bool MySQLBankSafe::selectScheme(const std::string& name_db) noexcept
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Error SQL selection: %s", e.what());
+		printf("Error SQL selection: %s\n", e.what());
 		return false;
 	}
 	return true;
@@ -163,7 +163,7 @@ bool MySQLBankSafe::immediatelyExecute(const std::string& query) noexcept
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Error SQL execution: %s", e.what());
+		printf("Error SQL execution: %s\n", e.what());
 		return false;
 	}
 }
@@ -176,7 +176,7 @@ void MySQLBankSafe::prepareExecution(const std::string& query) noexcept
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Error SQL preperation: %s", e.what());
+		printf("Error SQL preperation: %s\n", e.what());
 		return;
 	}
 }
@@ -190,7 +190,7 @@ bool MySQLBankSafe::executePrepared() noexcept
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Error SQL execution: %s", e.what());
+		printf("Error SQL execution: %s\n", e.what());
 		return false;
 	}
 }
@@ -204,7 +204,7 @@ bool MySQLBankSafe::executeQuery(const std::string& query) noexcept
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Error SQL execution: %s", e.what());
+		printf("Error SQL execution: %s\n", e.what());
 		return false;
 	}
 }
@@ -218,7 +218,7 @@ int MySQLBankSafe::executeUpdate(const std::string& query) noexcept
 	}
 	catch (sql::SQLException& e)
 	{
-		printf("Error SQL execution: %s", e.what());
+		printf("Error SQL execution: %s\n", e.what());
 		return false;
 	}
 }

@@ -18,18 +18,12 @@
     <ClCompile Include="src\MySQLBank.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\QueryGuru.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\MySQLBankOperator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MySQLBank.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\QueryGuru.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\IMySQLBank.h">
