@@ -9,35 +9,34 @@ int main()
 	MySQLBankSafe bank;
 	IMySQLBankSafe* bankI = (IMySQLBankSafe*)&bank;
 
-	if (checkConnectToDataBase())
+	int res;
+
+	if (res = checkConnectToDataBase())
 	{
-		printf("No connection or no key");
+		(void)printf("No connection or no key: %d\n", res);
 		exit(1);
 	}
 
-	bankI->connect("../resource/dbticket.txt");
+	(void)bankI->connect("../resource/dbticket.txt");
 	
 
-	if (setUpScheme())
+	if (res = setUpScheme())
 	{
-		printf("Something went wrong with set up\n");
+		(void)printf("Something went wrong with set up: %d\n", res);
 		exit(1);
 	}
-	printf("deleted and created database and created table\n");
+	(void)printf("deleted and created database and created table\n");
 
-	bank.selectScheme("content_chooser");
-	
-	if (prepareInsertInto())
+	(void)bank.selectScheme("content_chooser");
+
+
+	if (res = executePrepared())
 	{
-		printf("Something went wrong with preparation\n");
+		(void)printf("Something went wrong with preparated execution: %d\n", res);
 		exit(1);
 	}
 
-	if (executePrepared())
-	{
-		printf("Something went wrong with preparated execution\n");
-		exit(1);
-	}
+	(void)printf("Done!\n");
 
 	//if (selectFrom())
 	//{

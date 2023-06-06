@@ -70,7 +70,8 @@ bool MySQLBankOperator::executePreparedOper()
 {
 	try
 	{
-		return mPreparedStatement->execute();
+		mPreparedStatement->execute();
+		return true;
 	}
 	catch (sql::SQLException& e)
 	{

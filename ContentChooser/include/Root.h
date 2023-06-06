@@ -94,26 +94,20 @@ DLL_EXPORT int __stdcall selectFrom()
 	return 0;
 }
 
-DLL_EXPORT int __stdcall prepareInsertInto()
+int prepareInsertInto(MySQLBankSafe& bank)
 {
-	MySQLBankSafe bank;
-	if (bank.connect("../resource/dbticket.txt") != 0)
-		return 1;
-
-	std::ifstream fin("transit.sql");
+	std::ifstream finsql("transit.sql");
 	std::string line;
 
-	if (!fin.is_open())
+	if (!finsql.is_open())
 		return 1;
 
-	std::getline(fin, line);
+	std::getline(finsql, line);
 	bank.selectScheme(line);
-	std::getline(fin, line);
+	std::getline(finsql, line);
 
-	fin.close();
+	finsql.close();
 	bank.prepareExecution(line);
-
-	return 0;
 }
 
 #include <sstream>
@@ -121,8 +115,12 @@ DLL_EXPORT int __stdcall prepareInsertInto()
 DLL_EXPORT int __stdcall executePrepared()
 {
 	MySQLBankSafe bank;
+
 	if (bank.connect("../resource/dbticket.txt") != 0)
 		return 1;
+
+	if (!prepareInsertInto(bank))
+		return 2;
 
 	std::ifstream fin("transit.inp");
 	
@@ -139,44 +137,60 @@ DLL_EXPORT int __stdcall executePrepared()
 
 	std::string line;
 	std::stringstream ssline; // for separating by std::getline
-	std::string type;
-	std::string value;
 	size_t index;
+	size_t index_1;
 	bool is_title = true;
 	std::vector<std::string> datatype;
 
 	while (!fin.eof())
 	{
+		(void)printf("looped\n");
 		std::getline(fin, line, '\n');
+		(void)printf("%s\n", line.c_str());
+		ssline.clear();
 		ssline.str(line);
 
 		index = 1;
 
-		if (is_title)
+		if (!is_title)
 		{
 			while (!ssline.eof())
 			{
-				std::getline(ssline, type, '\t');
-				std::getline(ssline, value, '\t');
 
-				printf("%s -> %s\n", type.c_str(), value.c_str());
+				index_1 = index - 1;
 
-				if (type == "INT" || type == "SMALLINT UNSIGNED")
-					bank.getPreparedStatementInstance()->setInt(index, std::stoi(value));
-				else if (type == "DATETIME")
-					bank.getPreparedStatementInstance()->setDateTime(index, value);
-				else if (type == "STRING")
-					bank.getPreparedStatementInstance()->setString(index, value);
-				else if (type == "BIGINT UNSIGNED")
-					bank.getPreparedStatementInstance()->setUInt64(index, std::stoull(value));
+				std::getline(ssline, line, '\t');
+
+				(void)printf("got: %s\nthink as: %s\n", line.c_str(), datatype[index_1].c_str());
+
+				if (datatype[index_1] == "INT" || datatype[index_1] == "SMALLINT UNSIGNED")
+					bank.getPreparedStatementInstance()->setInt(index, std::stoi(line));
+				else if (datatype[index_1] == "DATETIME")
+					bank.getPreparedStatementInstance()->setDateTime(index, line);
+				else if (datatype[index_1] == "STRING")
+					bank.getPreparedStatementInstance()->setString(index, line);
+				else if (datatype[index_1] == "BIGINT UNSIGNED")
+				{
+					bank.getPreparedStatementInstance()->setUInt64(index, std::stoull(line));
+
+				}
 
 				index++;
-
-				printf("next\n");
 			}
 
-			if (!bank.executePrepared())
-				return 1;
+			if (bank.executePrepared() == false)
+				return 3;
+		}
+		else
+		{
+			while (!ssline.eof())
+			{
+				std::getline(ssline, line, '\t');
+				(void)printf("writed title: %s\n", line.c_str());
+				datatype.push_back(line);
+			}
+
+			is_title = false;
 		}
 	}
 
